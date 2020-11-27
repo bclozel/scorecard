@@ -1,0 +1,50 @@
+scorecard:
+  project:
+    name: spring-boot
+    members:
+      - wilkinsona
+      - mbhave
+      - scottfrederick
+      - snicoll
+      - philwebb
+      - bclozel
+    bots:
+      - spring-buildmaster
+      - spring-contributor
+      - spring-issuemaster
+  milestones:
+    backlog: 'General Backlog'
+  labels:
+    triage:
+      - 'status: waiting-for-triage'
+    enhancements:
+      - 'type: enhancement'
+    bugs:
+      - 'type: regression'
+      - 'type: bug'
+      - 'type: blocker'
+    tasks:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+    docs:
+      - 'type: wiki-documentation'
+      - 'type: documentation'
+    duplicates:
+      - 'status: duplicate'
+    rejected:
+      - 'status: declined'
+      - 'status: invalid'
+      - 'status: superseded'
+    ports:
+      - 'status: back-port'
+      - 'status: forward-port'
+    questions:
+      - 'for: stackoverflow'
+    blocked:
+      - 'status: on-hold'
+      - 'status: blocked'
+    design:
+      - 'status: pending-design-work'
+logging:
+  level:
+    io.spring.team.scorecard: DEBUG

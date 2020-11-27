@@ -1,0 +1,9 @@
+query AssignableUsers($org: String!, $repo: String!) {
+	repository(owner: $org, name: $repo) {
+		assignableUsers(first: 20) {
+			nodes {
+				login
+			}
+		}
+	}
+}
