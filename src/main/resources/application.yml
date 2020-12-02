@@ -45,6 +45,6 @@ scorecard:
       - 'status: blocked'
     design:
       - 'status: pending-design-work'
-logging:
-  level:
-    io.spring.team.scorecard: DEBUG
+#logging:
+#  level:
+#    io.spring.team.scorecard: DEBUG
