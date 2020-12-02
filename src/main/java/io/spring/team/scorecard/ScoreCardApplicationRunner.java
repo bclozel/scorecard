@@ -41,7 +41,7 @@ public class ScoreCardApplicationRunner implements ApplicationRunner {
 		logger.info("Inbound Volume: " + this.statsService.calculateInboundVolume(start, end,
 				this.properties.getProject().getMembers(), this.properties.getProject().getBots()).block());
 		logger.info("Rejections: " + this.statsService.calculateRejections(start, end,
-				this.properties.getLabels().getRejected()));
+				this.properties.getLabels().getRejected()).block());
 		logger.info("Adjusted Inbound Volume: " + this.statsService.calculateAdjustedInboundVolume(start, end).block());
 		logger.info("Output Volume: " + this.statsService.calculateOutputVolume(start, end, this.properties.getLabels().getPorts()).block());
 
