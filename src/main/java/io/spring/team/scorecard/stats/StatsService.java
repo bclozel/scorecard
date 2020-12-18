@@ -36,6 +36,13 @@ public class StatsService {
 	}
 
 	/**
+	 * Calculate the "Team created issues count" for the given period.
+	 */
+	public Mono<Integer> teamCreated(LocalDate start, LocalDate end, List<String> membersLogin) {
+		return findNumberOfIssuesCreatedByUsers(start, end, membersLogin);
+	}
+
+	/**
 	 * Calculate the "Rejections" for the given period.
 	 * Sum the number of issues closed for each label in the given list.
 	 */

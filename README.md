@@ -22,16 +22,18 @@ SCORECARD_GITHUB_TOKEN=mytoken java -jar build/libs/scorecard-0.0.1-SNAPSHOT.jar
 You should get the ouput on the console:
 
 ```
-Stats for: spring-projects/spring-boot 2020-09-01 -> 2020-09-30
+Stats for: spring-projects/spring-boot 2020-11-01 -> 2020-11-30
 Team members: ...
 Team bots: ...
 Assignable Users: ...
-Inbound Volume: 118
-Rejections: 63
-Adjusted Inbound Volume: 315
-Output Volume: 193
-Output Volume (enhancements): 32
-Output Volume (bugs): 51
-Output Volume (tasks): 206
-Output Volume (docs): 28
+Team created: 166
+Community created (Inbound Volume): 142
+Closed as Duplicates: 16
+Closed as Questions: 7
+Closed as Declined: 41
+Closed as Enhancements: 5
+Closed as Back/Forward-port: 71
+Closed as Bug/Regression: 54
+Closed as Task/Dependency Upgrade: 88
+Closed as Documentation: 41
 ```

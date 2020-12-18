@@ -38,17 +38,18 @@ public class ScoreCardApplicationRunner implements ApplicationRunner {
 		logger.info("Team bots: " + StringUtils.collectionToCommaDelimitedString(this.properties.getProject().getBots()));
 		List<String> assignableUsers = this.statsService.findAssignableUsers().collectList().block();
 		logger.info("Assignable Users: " + StringUtils.collectionToCommaDelimitedString(assignableUsers));
-		logger.info("Inbound Volume: " + this.statsService.calculateInboundVolume(start, end,
+		logger.info("Team created: " + this.statsService.teamCreated(start, end,
+				this.properties.getProject().getMembers()).block());
+		logger.info("Community created (Inbound Volume): " + this.statsService.calculateInboundVolume(start, end,
 				this.properties.getProject().getMembers(), this.properties.getProject().getBots()).block());
-		logger.info("Rejections: " + this.statsService.calculateRejections(start, end,
-				this.properties.getLabels().getRejected()).block());
-		logger.info("Adjusted Inbound Volume: " + this.statsService.calculateAdjustedInboundVolume(start, end).block());
-		logger.info("Output Volume: " + this.statsService.calculateOutputVolume(start, end, this.properties.getLabels().getPorts()).block());
-
-		logger.info("Output Volume (enhancements): " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getEnhancements()).block());
-		logger.info("Output Volume (bugs): " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getBugs()).block());
-		logger.info("Output Volume (tasks): " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getTasks()).block());
-		logger.info("Output Volume (docs): " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDocs()).block());
+		logger.info("Closed as Duplicates: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDuplicates()).block());
+		logger.info("Closed as Questions: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getQuestions()).block());
+		logger.info("Closed as Declined: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getRejected()).block());
+		logger.info("Closed as Enhancements: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getEnhancements()).block());
+		logger.info("Closed as Back/Forward-port: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getPorts()).block());
+		logger.info("Closed as Bug/Regression: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getBugs()).block());
+		logger.info("Closed as Task/Dependency Upgrade: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getTasks()).block());
+		logger.info("Closed as Documentation: " + this.statsService.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDocs()).block());
 	}
 
 
