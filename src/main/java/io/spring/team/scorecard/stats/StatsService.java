@@ -1,7 +1,10 @@
 package io.spring.team.scorecard.stats;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import io.spring.team.scorecard.graphql.GraphQLClient;
 import io.spring.team.scorecard.graphql.SearchQueryBuilder;
@@ -20,6 +23,14 @@ public class StatsService {
 		this.org = org;
 		this.repo = repo;
 		this.client = client;
+	}
+	
+	public void stargazers() {
+		List<OffsetDateTime> stargazers = this.client.stargazers(this.org, this.repo).collectList().block();
+		IntStream.range(1, 13).forEachOrdered((month) -> {
+			YearMonth yearMonth = YearMonth.of(2020,  month);
+			System.out.println(yearMonth + ": " + stargazers.stream().filter((starredAt) -> !starredAt.toLocalDate().isAfter(yearMonth.atEndOfMonth())).count());
+		});
 	}
 
 	/**

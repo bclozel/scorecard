@@ -1,0 +1,13 @@
+query Stargazers($org: String!, $repo: String!, $after: String) {
+	repository(owner: $org, name: $repo) {
+		stargazers(first: 100, after: $after) {    
+			edges {
+				starredAt
+			}
+			pageInfo {
+				hasNextPage
+				endCursor
+			}
+		}
+	}
+}

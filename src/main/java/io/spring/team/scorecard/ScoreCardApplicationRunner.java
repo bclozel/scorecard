@@ -30,6 +30,7 @@ public class ScoreCardApplicationRunner implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
+		this.statsService.stargazers();
 		LocalDate start = parseDate("start", args.getOptionValues("start"));
 		LocalDate end = parseDate("end", args.getOptionValues("end"));
 		logger.info("Stats for: " + this.properties.getProject().getRepository() + " " + start.toString() + " -> " + end.toString());
