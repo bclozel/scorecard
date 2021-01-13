@@ -1,5 +1,6 @@
 scorecard:
   project:
+    org: spring-projects
     name: spring-boot
     members:
       - wilkinsona
