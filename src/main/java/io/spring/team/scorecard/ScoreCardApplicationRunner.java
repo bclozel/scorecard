@@ -47,55 +47,57 @@ public class ScoreCardApplicationRunner implements ApplicationRunner {
 		logger.info("Assignable Users: " + StringUtils.collectionToCommaDelimitedString(assignableUsers));
 
 		Mono<Stats> singleQuery = Mono.just(new Stats())
-				.flatMap(stats -> this.statsServiceInMemory.findAllIssuesCreatedBetween(start, end)
-						.collectList()
-						.doOnNext(createdIssues -> logger.trace("Found " + createdIssues.size() + " created issues in the period: " + createdIssues.stream().map(i -> "#" + i.id).collect(Collectors.joining(", "))))
-						.map(createdIssues -> {
-							stats.setTeamCreated(this.statsServiceInMemory.teamCreated(createdIssues, this.properties.getProject().getMembers()));
-							stats.setCommunityCreated(this.statsServiceInMemory.calculateInboundVolume(createdIssues, this.properties.getProject().getMembers(), this.properties.getProject().getBots()));
-							return stats;
-						})
-				)
-				.flatMap(stats -> this.statsServiceInMemory.findAllIssuesClosedBetween(start, end)
-						.collectList()
-						.doOnNext(closedIssues -> logger.trace("Found " + closedIssues.size() + " issues in the period: " + closedIssues.stream().map(i -> "#" + i.id).collect(Collectors.joining(", "))))
-						.map(closedIssues -> {
-							stats.setClosedAsDuplicates(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getDuplicates()));
-							stats.setClosedAsQuestions(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getQuestions()));
-							stats.setClosedAsDeclined(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getRejected()));
-							stats.setClosedAsEnhancements(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getEnhancements()));
-							stats.setClosedAsPort(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getPorts()));
-							stats.setClosedAsBug(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getBugs()));
-							stats.setClosedAsTask( this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getTasks()));
-							stats.setClosedAsDocumentation(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getDocs()));
-							return stats;
-						})
+				.flatMap(stats -> Mono.when(
+						this.statsServiceInMemory.findAllIssuesCreatedBetween(start, end)
+								.collectList()
+								.doOnNext(createdIssues -> logger.trace("Found " + createdIssues.size() + " created issues in the period: " + createdIssues.stream().map(i -> "#" + i.id).collect(Collectors.joining(", "))))
+								.doOnNext(createdIssues -> {
+									stats.setTeamCreated(this.statsServiceInMemory.teamCreated(createdIssues, this.properties.getProject().getMembers()));
+									stats.setCommunityCreated(this.statsServiceInMemory.calculateInboundVolume(createdIssues, this.properties.getProject().getMembers(), this.properties.getProject().getBots()));
+								}).then(),
+						this.statsServiceInMemory.findAllIssuesClosedBetween(start, end)
+								.collectList()
+								.doOnNext(closedIssues -> logger.trace("Found " + closedIssues.size() + " issues in the period: " + closedIssues.stream().map(i -> "#" + i.id).collect(Collectors.joining(", "))))
+								.doOnNext(closedIssues -> {
+									stats.setClosedAsDuplicates(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getDuplicates()));
+									stats.setClosedAsQuestions(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getQuestions()));
+									stats.setClosedAsDeclined(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getRejected()));
+									stats.setClosedAsEnhancements(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getEnhancements()));
+									stats.setClosedAsPort(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getPorts()));
+									stats.setClosedAsBug(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getBugs()));
+									stats.setClosedAsTask( this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getTasks()));
+									stats.setClosedAsDocumentation(this.statsServiceInMemory.calculateOutputVolumeByType(closedIssues, this.properties.getLabels().getDocs()));
+								}).then())
+						.thenReturn(stats)
 				);
 
 		Mono<Stats> fanIn = Mono.just(new Stats())
-				.flatMap(stats -> this.statsServiceDedicatedQuery.teamCreated(start, end, this.properties.getProject().getMembers())
-						.map(stats::setTeamCreated))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateInboundVolume(start, end, this.properties.getProject().getMembers(),
-						this.properties.getProject().getBots())
-						.map(stats::setCommunityCreated))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDuplicates())
-						.map(stats::setClosedAsDuplicates))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getQuestions())
-						.map(stats::setClosedAsQuestions))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getRejected())
-						.map(stats::setClosedAsDeclined))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getEnhancements())
-						.map(stats::setClosedAsEnhancements))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getPorts())
-						.map(stats::setClosedAsPort))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getBugs())
-						.map(stats::setClosedAsBug))
-				.flatMap(stats ->  this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getTasks())
-						.map(stats::setClosedAsTask))
-				.flatMap(stats -> this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDocs())
-						.map(stats::setClosedAsDocumentation));
+				.flatMap(stats -> Mono.when(
+						this.statsServiceDedicatedQuery.teamCreated(start, end, this.properties.getProject().getMembers())
+								.doOnNext(stats::setTeamCreated),
+						this.statsServiceDedicatedQuery.calculateInboundVolume(start, end, this.properties.getProject().getMembers(),
+								this.properties.getProject().getBots())
+								.doOnNext(stats::setCommunityCreated),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDuplicates())
+								.doOnNext(stats::setClosedAsDuplicates),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getQuestions())
+								.doOnNext(stats::setClosedAsQuestions),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getRejected())
+								.doOnNext(stats::setClosedAsDeclined),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getEnhancements())
+								.doOnNext(stats::setClosedAsEnhancements),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getPorts())
+								.doOnNext(stats::setClosedAsPort),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getBugs())
+								.doOnNext(stats::setClosedAsBug),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getTasks())
+								.doOnNext(stats::setClosedAsTask),
+						this.statsServiceDedicatedQuery.calculateOutputVolumeByType(start, end, this.properties.getLabels().getDocs())
+								.doOnNext(stats::setClosedAsDocumentation)
+				).thenReturn(stats));
 
-		final Tuple2<Stats, Stats> bothStats = Mono.zip(singleQuery, fanIn).block();
+		final Tuple2<Stats, Stats> bothStats = Mono.zip(singleQuery, fanIn)
+				.block();
 		Stats singleQueryStats = bothStats.getT1();
 		Stats fanInStats = bothStats.getT2();
 
