@@ -34,6 +34,13 @@ public class StatsService2 {
 		return this.client.searchIssuesAndPRs(query);
 	}
 
+	public Flux<Issue> findAllIssuesClosedBetween(LocalDate start, LocalDate end) {
+		String query = SearchQueryBuilder.create(this.org, this.repo)
+				.closedBetween(start, end)
+				.build();
+		return this.client.searchIssuesAndPRs(query);
+	}
+
 	public long teamCreated(List<Issue> issues, List<String> members) {
 		return issues.stream().filter(issue -> members.contains(issue.author)).count();
 	}
@@ -42,9 +49,14 @@ public class StatsService2 {
 		return issues.stream().filter(issue -> !members.contains(issue.author) && !bots.contains(issue.author)).count();
 	}
 
-	public long calculateOutputVolumeByType(List<Issue> issues, List<String> typeLabelsList) {
+	/**
+	 * @param closedIssues the list of issues that were closed during the period
+	 * @param typeLabelsList the labels to consider (OR)
+	 * @return
+	 */
+	public long calculateOutputVolumeByType(List<Issue> closedIssues, List<String> typeLabelsList) {
 		Set<String> typeLabels = new HashSet<>(typeLabelsList);
-		return issues.stream()
+		return closedIssues.stream()
 				.filter(issue -> {
 					Set<String> labels = new HashSet<>(issue.labels);
 					labels.retainAll(typeLabels);
