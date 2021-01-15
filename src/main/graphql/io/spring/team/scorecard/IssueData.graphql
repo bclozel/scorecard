@@ -1,0 +1,55 @@
+query IssueData($query: String!, $cursor: String) {
+    search(query: $query, type: ISSUE, first: 100, after: $cursor) {
+        issueCount
+        nodes {
+            ... on Issue {
+                number
+                state
+                author {
+                    login
+                }
+                labels(last: 10) {
+                    nodes {
+                        name
+                    }
+                }
+                milestone {
+                    title
+                }
+                participants(last: 10) {
+                    nodes {
+                        login
+                    }
+                }
+                createdAt
+                closedAt
+            }
+            ... on PullRequest {
+                number
+                state
+                author {
+                    login
+                }
+                labels(last: 10) {
+                    nodes {
+                        name
+                    }
+                }
+                milestone {
+                    title
+                }
+                participants(last: 10) {
+                    nodes {
+                        login
+                    }
+                }
+                createdAt
+                closedAt
+            }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+        }
+    }
+}
