@@ -1,5 +1,5 @@
-query IssueData($query: String!) {
-    search(query: $query, type: ISSUE, last: 100) {
+query IssueData($query: String!, $cursor: String) {
+    search(query: $query, type: ISSUE, first: 100, after: $cursor) {
         issueCount
         nodes {
             ... on Issue {
@@ -46,6 +46,10 @@ query IssueData($query: String!) {
                 createdAt
                 closedAt
             }
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
         }
     }
 }
