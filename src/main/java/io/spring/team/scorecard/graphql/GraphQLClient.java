@@ -91,13 +91,11 @@ public class GraphQLClient {
 
 				boolean hasMorePages = search.pageInfo().hasNextPage();
 				if (hasMorePages) {
-					logger.debug("Fetching additional page");
 					String nextCursor = search.pageInfo().endCursor();
 					apolloClient.query(new IssueDataQuery(searchQuery, Input.fromNullable(nextCursor)))
 					.enqueue(this);
 				}
 				else {
-					logger.debug("Last page");
 					sink.emitComplete(FAIL_FAST);
 				}
 			}
